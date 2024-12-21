@@ -1,0 +1,244 @@
+import java.io.*;
+import java.util.*;
+
+public class PersonalFinanceApp {
+
+    // Transaction class to store income and expense details
+    static class Transaction {
+        String description;
+        double amount;
+        String type; // "income" or "expense"
+        String category;
+
+        Transaction(String description, double amount, String type, String category) {
+            this.description = description;
+            this.amount = amount;
+            this.type = type;
+            this.category = category;
+        }
+
+        @Override
+        public String toString() {
+            return type + ": " + description + " | Amount: $" + amount + " | Category: " + category;
+        }
+    }
+
+    // Budget class to manage total income, total expenses, and budget limits
+    static class Budget {
+        double totalIncome;
+        double totalExpenses;
+        double budgetLimit;
+        Map<String, Double> categoryBudgets;
+
+        Budget(double budgetLimit) {
+            this.totalIncome = 0;
+            this.totalExpenses = 0;
+            this.budgetLimit = budgetLimit;
+            this.categoryBudgets = new HashMap<>();
+        }
+
+        // Method to set a budget for a specific category
+        void setCategoryBudget(String category, double amount) {
+            categoryBudgets.put(category, amount);
+        }
+
+        // Method to add income and update totalIncome
+        void addIncome(double amount) {
+            totalIncome += amount;
+        }
+
+        // Method to add expense and update totalExpenses
+        void addExpense(double amount) {
+            totalExpenses += amount;
+        }
+
+        // Display budget summary with remaining balance
+        void displaySummary() {
+            System.out.println("Total Income: $" + totalIncome);
+            System.out.println("Total Expenses: $" + totalExpenses);
+            System.out.println("Remaining Balance: $" + (totalIncome - totalExpenses));
+            System.out.println("Budget Limit: $" + budgetLimit);
+            System.out.println("Remaining Budget: $" + (budgetLimit - totalExpenses));
+        }
+
+        // Display a detailed budget report including category budgets
+        void displayCategoryBudgets() {
+            System.out.println("\nCategory Budgets:");
+            for (Map.Entry<String, Double> entry : categoryBudgets.entrySet()) {
+                System.out.println(entry.getKey() + ": $" + entry.getValue());
+            }
+        }
+    }
+
+    // User class to handle user authentication and transactions
+    static class User {
+        String username;
+        String password;
+        Budget budget;
+        List<Transaction> transactions;
+
+        User(String username, String password, double initialBudget) {
+            this.username = username;
+            this.password = password;
+            this.budget = new Budget(initialBudget);
+            this.transactions = new ArrayList<>();
+        }
+
+        // Add transaction to user's transaction history
+        void addTransaction(Transaction transaction) {
+            transactions.add(transaction);
+            if (transaction.type.equals("income")) {
+                budget.addIncome(transaction.amount);
+            } else {
+                budget.addExpense(transaction.amount);
+            }
+        }
+
+        // Display user's transaction history
+        void displayTransactions() {
+            System.out.println("\nTransaction History for " + username + ":");
+            for (Transaction t : transactions) {
+                System.out.println(t);
+            }
+        }
+    }
+
+    // Main program flow
+    static Scanner scanner = new Scanner(System.in);
+    static Map<String, User> users = new HashMap<>();
+    static User currentUser;
+
+    // Authenticate the user
+    public static boolean login(String username, String password) {
+        if (users.containsKey(username) && users.get(username).password.equals(password)) {
+            currentUser = users.get(username);
+            return true;
+        }
+        return false;
+    }
+
+    // Register a new user
+    public static void register(String username, String password, double initialBudget) {
+        if (users.containsKey(username)) {
+            System.out.println("User already exists!");
+        } else {
+            User newUser = new User(username, password, initialBudget);
+            users.put(username, newUser);
+            System.out.println("User registered successfully!");
+        }
+    }
+
+    // Add a transaction (either income or expense)
+    public static void addTransaction() {
+        System.out.print("Enter transaction description: ");
+        String description = scanner.nextLine();
+        System.out.print("Enter transaction amount: $");
+        double amount = scanner.nextDouble();
+        scanner.nextLine(); // consume newline
+        System.out.print("Enter transaction type (income/expense): ");
+        String type = scanner.nextLine().toLowerCase();
+        System.out.print("Enter transaction category: ");
+        String category = scanner.nextLine();
+
+        if (type.equals("income")) {
+            currentUser.addTransaction(new Transaction(description, amount, "income", category));
+        } else if (type.equals("expense")) {
+            currentUser.addTransaction(new Transaction(description, amount, "expense", category));
+        } else {
+            System.out.println("Invalid type! Please enter 'income' or 'expense'.");
+            return;
+        }
+
+        System.out.println("Transaction added successfully!");
+    }
+
+    // Display user's transaction history
+    public static void viewTransactions() {
+        if (currentUser == null) {
+            System.out.println("Please log in first.");
+            return;
+        }
+        currentUser.displayTransactions();
+    }
+
+    // Display financial summary (Income, Expenses, Balance)
+    public static void viewSummary() {
+        if (currentUser == null) {
+            System.out.println("Please log in first.");
+            return;
+        }
+        currentUser.budget.displaySummary();
+    }
+
+    // Display category-specific budget information
+    public static void viewCategoryBudgets() {
+        if (currentUser == null) {
+            System.out.println("Please log in first.");
+            return;
+        }
+        currentUser.budget.displayCategoryBudgets();
+    }
+
+    // Main method to run the program
+    public static void main(String[] args) {
+        int choice;
+
+        // Register a default user for testing
+        register("testUser", "password123", 5000.0);
+
+        do {
+            System.out.println("\nPersonal Finance Management System");
+            System.out.println("1. Register");
+            System.out.println("2. Login");
+            System.out.println("3. Add Transaction");
+            System.out.println("4. View Transactions");
+            System.out.println("5. View Financial Summary");
+            System.out.println("6. View Category Budgets");
+            System.out.println("7. Exit");
+            System.out.print("Choose an option: ");
+            choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter username: ");
+                    String username = scanner.nextLine();
+                    System.out.print("Enter password: ");
+                    String password = scanner.nextLine();
+                    System.out.print("Enter initial budget: $");
+                    double initialBudget = scanner.nextDouble();
+                    scanner.nextLine(); // consume newline
+                    register(username, password, initialBudget);
+                    break;
+                case 2:
+                    System.out.print("Enter username: ");
+                    String loginUsername = scanner.nextLine();
+                    System.out.print("Enter password: ");
+                    String loginPassword = scanner.nextLine();
+                    if (login(loginUsername, loginPassword)) {
+                        System.out.println("Login successful!");
+                    } else {
+                        System.out.println("Invalid username or password.");
+                    }
+                    break;
+                case 3:
+                    addTransaction();
+                    break;
+                case 4:
+                    viewTransactions();
+                    break;
+                case 5:
+                    viewSummary();
+                    break;
+                case 6:
+                    viewCategoryBudgets();
+                    break;
+                case 7:
+                    System.out.println("Exiting...");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } while (choice != 7);
+    }
+}
