@@ -1,0 +1,98 @@
+import java.util.Scanner;
+
+public class SimpleBankingSystem {
+Run main | Debug main | Run | Debug
+public static void main(String[] args) {
+Scanner scanner = new Scanner(System.in);
+
+// Create a sample customer and account
+Customer customer = new Customer(name:"John Doe", accountNumber:"12345678", initialBalance: 1000.0);
+
+// Menu
+while (true) {
+System.out.println(x:"\n --- Banking Menu --- ");
+System.out.println(x:"1. Deposit");
+System.out.println(x:"2. Withdraw");
+System.out.println(x:"3. Check Balance");
+System.out.println(x:"4. Exit");
+System.out.print(s:"Choose an option: ");
+int choice = scanner.nextInt();
+
+switch (choice) {
+case 1:
+System.out.print(s:"Enter deposit amount: ");
+double depositAmount = scanner.nextDouble();
+customer.getAccount().deposit(depositAmount);
+break;
+
+case 2:
+System.out.print(s:"Enter withdrawal amount: ");
+double withdrawalAmount = scanner.nextDouble();
+customer.getAccount().withdraw(withdrawalAmount);
+break;
+
+case 3:
+customer.getAccount().checkBalance();
+break;
+
+case 4:
+System.out.println(x:"Exiting ... Thank you for using the system!");
+scanner.close();
+return;
+
+default:
+System.out.println(x:"Invalid option. Please try again.");
+
+}
+class Customer {
+private String name;
+private Account account;
+
+public Customer(String name, String accountNumber, double initialBalance) {
+this.name = name;
+this.account = new Account(name, accountNumber, initialBalance);
+
+// Accessor Methods
+public Account getAccount() {
+return account;
+
+public String getName() {
+return name;
+}
+}
+class Account {
+private String accountHolder;
+private String accountNumber;
+private double balance;
+
+// Constructor
+public Account(String accountHolder, String accountNumber, double balance) {
+this.accountHolder = accountHolder;
+this.accountNumber = accountNumber;
+this.balance = balance;
+
+// Deposit Method
+public void deposit(double amount) {
+if (amount > 0) {
+balance += amount;
+System.out.println("Deposit Successful! New Balance: " + balance);
+} else {
+System.out.println(x:"Invalid deposit amount.");
+
+// Withdraw Method
+public void withdraw(double amount) {
+if (amount > 0 && amount <= balance) {
+balance -= amount;
+System.out.println("Withdrawal Successful! New Balance: " + balance);
+} else if (amount > balance) {
+System.out.println(x:"Insufficient balance.");
+} else {
+System.out.println(x:"Invalid withdrawal amount.");
+
+// Balance Inquiry
+public void checkBalance() {
+System.out.println("Account Holder: " + accountHolder);
+System.out.println("Account Number: " + accountNumber);
+System.out.println("Current Balance: " + balance);
+}
+}
